@@ -1,7 +1,6 @@
 import openai
 import os
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
 MULTI_CHOICE_SEPARATOR = '\n\n##################################################\n\n'
 
 def chat(messages, max_tokens,temperature = 1, n=1, model="gpt-3.5-turbo-16k"):

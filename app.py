@@ -17,6 +17,7 @@ from langchain.document_loaders import TextLoader
 from chat_gpt import chat
 from yt_templates.templates import get_follow_up_template
 from yt_templates.templates import get_initial_template
+import openai
 
 # Streamlit Setup
 st.markdown(
@@ -44,6 +45,7 @@ if openai_key is None:
         
 if openai_key:
     # Preprocess Video
+    openai.api_key = openai_key
     st.subheader("Preprocess Video")
     with st.status("", expanded=st.session_state.expanded_preprocessing) as status:
         url = st.text_input("Enter YouTube Video URL:")
