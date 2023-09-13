@@ -66,7 +66,7 @@ if openai_key:
                         transcript = available_transcripts[selected_language]
                         st.session_state.transcript = transcript
                         st.session_state.transcript_parts = split_transcript(transcript, 100)
-                        embeddings = OpenAIEmbeddings(openai_api_key=os.environ["OPENAI_API_KEY"])
+                        embeddings = OpenAIEmbeddings(openai_api_key=openai_key)
                         st.session_state.vector_store = FAISS.from_documents(st.session_state.transcript_parts, embeddings)
                         status.update(label="Processing completed! You can start chatting with the video!", state="complete", expanded=False)
                         st.session_state.expanded_preprocessing = False
