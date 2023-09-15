@@ -25,6 +25,27 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+with st.sidebar:
+    st.markdown(
+        """
+        <div style="display: flex; align-items: left;">
+            <div style="margin-right: 20px">
+                <strong>Arben Sabani</strong><br>
+                <small>Developer <br> NLP Enthusiast <br> Language Technologist</small>                
+            </div>
+            <div>
+                <a href="https://www.linkedin.com/in/arben-sabani-339074128/" target="_blank">
+                    <img src="https://img.icons8.com/fluent/48/000000/linkedin.png" style="height: 58px;">
+                </a>   <br>
+                <a href="https://www.supertext.ch/" target="_blank">
+                    <img src="https://media.licdn.com/dms/image/C4D0BAQEJ4VK0Yhvf8Q/company-logo_200_200/0/1625125787308?e=1703116800&v=beta&t=A4z331QbMsGct2sBcNNusL60IqvOPJnRkmAQlQKqv0M" style="height: 48px;margin-left: 6px">
+                </a>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 st.title("Chat with your YouTube Video")
 st.markdown('---')
 
