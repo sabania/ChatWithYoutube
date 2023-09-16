@@ -2,6 +2,7 @@ import os
 import streamlit as st
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import NoTranscriptFound
+from utils import get_image_base64
 
 # Custom Imports
 from youtube_helper import extract_video_id, create_metadata
@@ -25,9 +26,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+base_64_logo = get_image_base64("assets/W_Schriftmarke.png")
 with st.sidebar:
     st.markdown(
-        """
+        f"""
         <div style="display: flex; justify-content: space-between; align-items: left; border: 3px solid #d35353; padding: 25px">
     <div style="margin-right: 20px">
         <strong>Arben Sabani</strong><br>
@@ -38,7 +40,7 @@ with st.sidebar:
             <img src="https://img.icons8.com/fluent/48/000000/linkedin.png" style="height: 58px;">
         </a>   <br>
         <a href="https://www.supertext.ch/" target="_blank">
-            <img src="https://media.licdn.com/dms/image/C4D0BAQEJ4VK0Yhvf8Q/company-logo_200_200/0/1625125787308?e=1703116800&v=beta&t=A4z331QbMsGct2sBcNNusL60IqvOPJnRkmAQlQKqv0M" style="height: 48px;margin-left: 6px; margin-top:15px">
+            <img src="data:image/png;base64,{base_64_logo}" style="height: 48px;margin-left: 6px; margin-top:15px">
         </a>
     </div>
 </div>
