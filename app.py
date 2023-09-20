@@ -16,7 +16,7 @@ from langchain.vectorstores import FAISS
 from langchain.document_loaders import TextLoader
 
 from chat_gpt import chat
-from yt_templates.templates import get_follow_up_template
+from yt_templates.templates import get_new_search_required_template, get_system_template
 from yt_templates.templates import get_initial_template
 import openai
 
@@ -54,11 +54,13 @@ st.markdown('---')
 
 # Initialize session state variables
 if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = []
+    st.session_state.chat_history = [{"role": "system", "content": get_system_template()}]
 if 'chat_history_view' not in st.session_state:
     st.session_state.chat_history_view = []
 if 'expanded_preprocessing' not in st.session_state:
     st.session_state.expanded_preprocessing = True
+if 'current_search_result' not in st.session_state:
+    st.session_state.current_search_result = []
 
 openai_key = os.environ.get("OPENAI_API_KEY")
 if openai_key is None:
@@ -109,18 +111,34 @@ if openai_key:
         user_input = st.chat_input("Ask something about the video")
 
         if clear_button:
-            st.session_state.chat_history = []
+            st.session_state.chat_history = [st.session_state.chat_history[0]]
             st.session_state.chat_history_view = []
             st.experimental_rerun()
 
         if user_input:
-            search_result = st.session_state.vector_store.search(user_input, search_type="similarity", k=25)
+            search_required = True
+            # on is system message, one is initial user message, one is answer from chatgpt, if more than 3 messages, check if question can be answered
+            if len(st.session_state.chat_history) >= 3:
+                search_required_msg = get_new_search_required_template(user_input)
+                temp_chat_history = st.session_state.chat_history.copy()
+                temp_chat_history.append({"role": "user", "content": search_required_msg})
+                question_can_be_answered = chat(temp_chat_history, 50, model="gpt-3.5-turbo-16k")
+                # check if question can be answered contains yes or no
+                if question_can_be_answered.lower().find('yes') != -1:
+                    search_required = False
+                print('IS SEARCH REQUIRED: ', search_required)
+            search_result = st.session_state.vector_store.search(user_input, search_type="similarity", k=25) if search_required else st.session_state.current_search_result
             st.session_state.current_search_result = search_result
-            current_msg_txt = get_initial_template(search_result, user_input) if len(st.session_state.chat_history) == 0 else get_follow_up_template(search_result, user_input)
-            st.session_state.chat_history.append({"role": "user", "content": current_msg_txt})
-            st.session_state.chat_history_view.append({"role": "user", "content": user_input})
-
-            gpt_answer = chat(st.session_state.chat_history, 1000, model="gpt-3.5-turbo-16k")
+            current_msg_txt = get_initial_template(search_result, user_input)
+            # we creat this to have a history without the search result, as addin all the search results would be too much for the context window
+            current_msg_txt_empt_sarch = get_initial_template([], user_input)
+            # we create a history with the current search result only, as we need it for the chatgpt
+            sending_history = st.session_state.chat_history.copy()  
+            st.session_state.chat_history.append({"role": "user", "content": current_msg_txt_empt_sarch})            
+            st.session_state.chat_history_view.append({"role": "user", "content": user_input})            
+            sending_history.append({"role": "user", "content": current_msg_txt})
+            print('chat history sending: ', sending_history)
+            gpt_answer = chat(sending_history, 1000, model="gpt-3.5-turbo-16k", temperature=0.0)
             st.session_state.chat_history.append({"role": "assistant", "content": gpt_answer})
 
             text, vid_content = parse_answer(gpt_answer, video_id)
